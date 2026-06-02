@@ -138,104 +138,6 @@
       padding: 16px 16px 0;
     }
 
-    .statusbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 10px 8px;
-      color: #fff;
-      font-size: 15px;
-      font-weight: 800;
-      letter-spacing: .3px;
-    }
-
-    .status-icons {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 13px;
-    }
-
-    .sig-bars {
-      display: inline-flex;
-      align-items: end;
-      gap: 2px;
-      height: 14px;
-    }
-
-    .sig-bars span {
-      display: block;
-      width: 3px;
-      border-radius: 8px;
-      background: #fff;
-    }
-
-    .sig-bars span:nth-child(1) { height: 5px; opacity: .6; }
-    .sig-bars span:nth-child(2) { height: 8px; opacity: .72; }
-    .sig-bars span:nth-child(3) { height: 11px; opacity: .85; }
-    .sig-bars span:nth-child(4) { height: 14px; }
-
-    .wifi {
-      width: 18px;
-      height: 14px;
-      position: relative;
-      display: inline-block;
-    }
-
-    .wifi::before,
-    .wifi::after {
-      content: "";
-      position: absolute;
-      border: 2px solid #fff;
-      border-color: #fff transparent transparent transparent;
-      border-radius: 50%;
-      left: 50%;
-      transform: translateX(-50%);
-    }
-
-    .wifi::before {
-      width: 17px;
-      height: 17px;
-      top: 1px;
-    }
-
-    .wifi::after {
-      width: 9px;
-      height: 9px;
-      top: 7px;
-    }
-
-    .battery {
-      width: 27px;
-      height: 13px;
-      border: 2px solid rgba(255,255,255,.9);
-      border-radius: 4px;
-      position: relative;
-      display: inline-block;
-    }
-
-    .battery::before {
-      content: "";
-      position: absolute;
-      right: -5px;
-      top: 3px;
-      width: 3px;
-      height: 5px;
-      border-radius: 0 2px 2px 0;
-      background: #fff;
-    }
-
-    .battery::after {
-      content: "";
-      position: absolute;
-      left: 2px;
-      top: 2px;
-      bottom: 2px;
-      width: 18px;
-      border-radius: 2px;
-      background: #fff;
-    }
-
     .main-grid {
       display: grid;
       grid-template-columns: 260px minmax(0, 1fr);
@@ -642,6 +544,8 @@
     .chat-card {
       min-height: 390px;
       padding: 18px;
+      display: flex;
+      flex-direction: column;
     }
 
     .chat-card::before,
@@ -664,6 +568,13 @@
       display: grid;
       gap: 14px;
       padding-bottom: 8px;
+      flex: 1;
+      overflow-y: auto;
+      max-height: calc(100dvh - 280px);
+    }
+
+    .chat-card.has-fixed-input .chat-stream {
+      padding-bottom: 110px;
     }
 
     .msg {
@@ -752,11 +663,15 @@
       margin-right: 8px;
     }
 
+    /* Input dock fixo somente na aba chat */
     .input-dock {
-      position: sticky;
-      bottom: calc(var(--bottom) + var(--safe-bottom) + 12px);
-      z-index: 30;
-      margin: 14px 0 0;
+      position: fixed;
+      bottom: calc(82px + 16px + env(safe-area-inset-bottom, 0px));
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 32px);
+      max-width: 1180px;
+      z-index: 45;
       display: grid;
       grid-template-columns: 48px 1fr 48px 56px;
       gap: 10px;
@@ -767,6 +682,11 @@
       background: rgba(4,14,17,.86);
       backdrop-filter: blur(18px);
       box-shadow: 0 0 28px rgba(70,255,71,.14), inset 0 0 18px rgba(74,255,71,.04);
+      transition: none;
+    }
+
+    .input-dock.hidden-input {
+      display: none;
     }
 
     .input-dock input {
@@ -1662,11 +1582,6 @@
         padding: 8px 10px 0;
       }
 
-      .statusbar {
-        padding-left: 4px;
-        padding-right: 4px;
-      }
-
       .brand-logo {
         width: 50px;
         height: 50px;
@@ -1798,11 +1713,6 @@
       <div class="sidebar-inner">
         <button class="hamburger" id="closeSidebarBtn" aria-label="Fechar menu"><span></span></button>
 
-        <button class="side-item active" data-side="home">
-          <span class="side-icon" data-icon="home"></span>
-          <span>Início</span>
-        </button>
-
         <button class="side-item" id="newChatBtn">
           <span class="side-icon" data-icon="plus-circle"></span>
           <span>Nova conversa</span>
@@ -1870,16 +1780,6 @@
     </aside>
 
     <main class="phone-frame">
-      <div class="statusbar" aria-hidden="true">
-        <span>9:41</span>
-        <div class="status-icons">
-          <span class="sig-bars"><span></span><span></span><span></span><span></span></span>
-          <span class="wifi"></span>
-          <span class="battery"></span>
-          <span>100%</span>
-        </div>
-      </div>
-
       <div class="main-grid">
         <div></div>
         <section class="content">
@@ -1932,148 +1832,6 @@
                   </div>
                 </div>
               </article>
-
-              <article class="analysis-card">
-                <div class="card-title">
-                  <span class="left"><span class="card-icon" data-icon="brain"></span> Análise de Bilhete</span>
-                  <button class="close-x" title="Fechar visualização" id="hideAnalysisPreview">×</button>
-                </div>
-
-                <div class="paste-row">
-                  <div class="field">
-                    <label for="betslipInput">Cole seu bilhete ou link aqui</label>
-                    <input id="betslipInput" value="https://betano.com/betslip/123456789" />
-                  </div>
-                  <button class="paste-box" id="pasteDemoBtn" title="Colar exemplo"><span data-icon="clipboard"></span></button>
-                </div>
-
-                <button class="analyze-btn" id="quickAnalyzeBtn"><span class="card-icon" data-icon="brain"></span> Analisar</button>
-
-                <div id="analysisPreviewResults" class="results-grid">
-                  <div class="ring-card">
-                    <div>
-                      <div class="small-label">Probabilidade estimada</div>
-                      <div class="ring" style="--p:67"><div><strong id="previewProb">67%</strong><small>Chance de<br>sucesso</small></div></div>
-                    </div>
-                  </div>
-
-                  <div class="result-stack">
-                    <div class="mini-result">
-                      <div class="small-label">Nível de risco</div>
-                      <div class="risk-title" id="previewRisk">Médio</div>
-                      <div class="risk-bar"><span></span><span></span><span></span></div>
-                    </div>
-                    <div class="mini-result">
-                      <div class="small-label">Odd justa</div>
-                      <div class="fair-odd">
-                        <strong id="previewFairOdd">1.87</strong>
-                        <span class="value" id="previewValue">VALOR +25.7%</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="ticket-table">
-                    <table class="table">
-                      <thead>
-                        <tr><th>Mercado</th><th>Odd</th><th>Prob. Est.</th><th>Fair Odd</th><th>Value</th></tr>
-                      </thead>
-                      <tbody id="previewRows">
-                        <tr><td>Mais de 2.5 gols</td><td>1.90</td><td>61%</td><td>1.67</td><td class="up">+13.8% ↑</td></tr>
-                        <tr><td>Ambas marcam: Sim</td><td>1.75</td><td>58%</td><td>1.68</td><td class="up">+4.2% ↑</td></tr>
-                        <tr><td>Flamengo ou Empate</td><td>1.36</td><td>73%</td><td>1.28</td><td class="up">+6.2% ↑</td></tr>
-                      </tbody>
-                    </table>
-                  </div>
-
-                  <div class="warning-box">
-                    <span data-icon="alert"></span>
-                    <div>
-                      <strong>Atenção:</strong> a odd de “Mais de 2.5 gols” pode estar inflada. A casa pode estar tentando te prender no favoritismo e no volume ofensivo esperado. Não existe garantia de acerto.
-                    </div>
-                  </div>
-                </div>
-              </article>
-
-              <section class="module-grid">
-                <article class="module-card">
-                  <div>
-                    <div class="module-head"><span class="card-icon" data-icon="calculator"></span> Calculadora<br>de Odds</div>
-                    <div class="module-body">
-                      <label>Stake (R$)</label>
-                      <input class="mini-input" id="miniStake" value="100,00" />
-                      <label>Odd Total</label>
-                      <input class="mini-input" id="miniOdd" value="2,35" />
-                      <span>Retorno Potencial</span>
-                      <span class="big-money" id="miniReturn">R$ 235,00</span>
-                      <span>Lucro Líquido</span>
-                      <span class="big-money" id="miniProfit">R$ 135,00</span>
-                      <div class="mini-chart"><svg viewBox="0 0 120 48"><path d="M4 40 L18 36 L29 39 L42 24 L55 30 L70 18 L85 21 L98 8 L116 12"/></svg></div>
-                    </div>
-                  </div>
-                  <button class="neon-btn" data-tab="odds">Abrir módulo</button>
-                </article>
-
-                <article class="module-card">
-                  <div>
-                    <div class="module-head"><span class="card-icon" data-icon="field"></span> Previsão da Partida</div>
-                    <div class="module-body">
-                      <div class="match">
-                        <div><div class="crest red">FLA</div>FLAMENGO</div>
-                        <strong>VS</strong>
-                        <div><div class="crest green">PAL</div>PALMEIRAS</div>
-                      </div>
-                      <div class="donut-row">
-                        <div><strong>45%</strong><br>FLA</div>
-                        <div class="donut">25%<br><small>Empate</small></div>
-                        <div><strong>30%</strong><br>PAL</div>
-                      </div>
-                      <div class="players">
-                        <div class="player-line"><span>Arrascaeta (FLA)</span><span>Provável <span class="dot"></span></span></div>
-                        <div class="player-line"><span>Everton Cebolinha</span><span>Dúvida <span class="dot warn"></span></span></div>
-                        <div class="player-line"><span>G. Gómez (PAL)</span><span>Provável <span class="dot"></span></span></div>
-                      </div>
-                    </div>
-                  </div>
-                  <button class="neon-btn" data-tab="previsao">Ver detalhes</button>
-                </article>
-
-                <article class="module-card">
-                  <div>
-                    <div class="module-head"><span class="card-icon" data-icon="history"></span> Histórico</div>
-                    <div class="module-body">
-                      <span>Bilhetes analisados</span>
-                      <span class="big-money">128</span>
-                      <div class="two-col" style="gap:8px">
-                        <span>Acertou<br><b style="color:var(--green)">92 (72%)</b></span>
-                        <span>Errou<br><b style="color:var(--danger)">36 (28%)</b></span>
-                      </div>
-                      <span>ROI</span>
-                      <span class="big-money">+18.4%</span>
-                      <div class="mini-chart"><svg viewBox="0 0 120 48"><path d="M4 39 L17 31 L29 34 L42 22 L56 27 L70 17 L82 20 L98 9 L116 6"/></svg></div>
-                    </div>
-                  </div>
-                  <button class="neon-btn" data-tab="historico">Ver histórico</button>
-                </article>
-
-                <article class="module-card">
-                  <div>
-                    <div class="module-head"><span class="card-icon" data-icon="brain"></span> Info do App</div>
-                    <div class="module-body">
-                      <ul class="check-list">
-                        <li>Análises com IA</li>
-                        <li>Odds justas</li>
-                        <li>Value Bets</li>
-                        <li>Gestão de banca</li>
-                        <li>Alertas de risco</li>
-                      </ul>
-                      <div style="height:78px;border-radius:14px;background:radial-gradient(circle at 60% 40%, rgba(102,255,61,.22), transparent 35%), linear-gradient(180deg, rgba(102,255,61,.06), rgba(0,188,255,.05));display:grid;place-items:center;color:var(--green)">
-                        <span style="font-size:42px">⚽</span>
-                      </div>
-                    </div>
-                  </div>
-                  <button class="neon-btn" data-modal="settings">Saiba mais</button>
-                </article>
-              </section>
             </div>
           </section>
 
@@ -2137,7 +1895,7 @@ Flamengo ou Empate @1.36</textarea>
                       <tr><th>Mercado</th><th>Odd</th><th>Prob.</th><th>Fair Odd</th><th>Alerta</th></tr>
                     </thead>
                     <tbody id="ticketRows"></tbody>
-                  </table>
+                   </table>
                 </div>
 
                 <div class="warning-box">
@@ -2295,19 +2053,19 @@ Flamengo ou Empate @1.36</textarea>
               <div class="history-list" id="historyList"></div>
             </article>
           </section>
-
-          <div class="input-dock">
-            <button class="circle-btn" id="inputPlusBtn" title="Adicionar bilhete"><span data-icon="plus"></span></button>
-            <input id="chatInput" placeholder="Digite sua mensagem..." autocomplete="off" />
-            <button class="circle-btn" id="voiceBtn" title="Microfone"><span data-icon="mic"></span></button>
-            <button class="send-btn" id="sendBtn" title="Enviar"><span data-icon="send"></span></button>
-          </div>
         </section>
       </div>
     </main>
 
+    <div class="input-dock" id="inputDock">
+      <button class="circle-btn" id="inputPlusBtn" title="Adicionar bilhete"><span data-icon="plus"></span></button>
+      <input id="chatInput" placeholder="Digite sua mensagem..." autocomplete="off" />
+      <button class="circle-btn" id="voiceBtn" title="Microfone"><span data-icon="mic"></span></button>
+      <button class="send-btn" id="sendBtn" title="Enviar"><span data-icon="send"></span></button>
+    </div>
+
     <nav class="bottom-nav" aria-label="Navegação inferior">
-      <button class="tab-btn active" data-tab="chat"><span class="tab-icon" data-icon="brain"></span><span>Chat IA</span></button>
+      <button class="tab-btn active" data-tab="chat"><span class="tab-icon" data-icon="brain"></span><span>Afileno.ai</span></button>
       <button class="tab-btn" data-tab="bilhete"><span class="tab-icon" data-icon="ticket"></span><span>Bilhete</span></button>
       <button class="tab-btn" data-tab="odds"><span class="tab-icon" data-icon="calculator"></span><span>Odds</span></button>
       <button class="tab-btn" data-tab="previsao"><span class="tab-icon" data-icon="field"></span><span>Previsão</span></button>
@@ -2488,6 +2246,17 @@ Flamengo ou Empate @1.36</textarea>
       $$(".view").forEach(view => view.classList.remove("active"));
       const target = $("#view-" + tab);
       if (target) target.classList.add("active");
+      
+      const inputDock = $("#inputDock");
+      const chatCard = $(".chat-card");
+      if (tab === "chat") {
+        inputDock.classList.remove("hidden-input");
+        if (chatCard) chatCard.classList.add("has-fixed-input");
+      } else {
+        inputDock.classList.add("hidden-input");
+        if (chatCard) chatCard.classList.remove("has-fixed-input");
+      }
+      
       closeSidebar();
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -2610,16 +2379,6 @@ Flamengo ou Empate @1.36</textarea>
       toast("Dados simulados atualizados.");
     });
 
-    $("#hideAnalysisPreview").addEventListener("click", () => {
-      $(".analysis-card").style.display = "none";
-      toast("Prévia ocultada. Use a aba Bilhete para abrir novamente.");
-    });
-
-    $("#pasteDemoBtn").addEventListener("click", () => {
-      $("#betslipInput").value = "Flamengo x Palmeiras | Over 2.5 @1.90 | Ambas @1.75 | Dupla chance @1.36";
-      toast("Exemplo colado.");
-    });
-
     function randomPercent(base = 67, variance = 9) {
       return clamp(Math.round(base + (Math.random() * variance * 2 - variance)), 38, 82);
     }
@@ -2634,12 +2393,6 @@ Flamengo ou Empate @1.36</textarea>
       $("#previewValue").textContent = "VALOR +" + Math.max(1, value) + "%";
       $("#previewRisk").textContent = p >= 70 ? "Baixo" : p >= 56 ? "Médio" : "Alto";
     }
-
-    $("#quickAnalyzeBtn").addEventListener("click", () => {
-      randomizePreview();
-      addHistory("Flamengo x Palmeiras", "Bilhete analisado", 2.35, parseInt($("#previewProb").textContent), "pending");
-      toast("Análise simulada gerada.");
-    });
 
     function analyzeTicket() {
       const text = $("#ticketText").value;
@@ -2685,23 +2438,10 @@ Flamengo ou Empate @1.36</textarea>
       $("#cashoutValue").textContent = brl(cashout);
       $("#impliedProb").textContent = implied.toFixed(1) + "%";
       $("#impliedRing").style.setProperty("--p", implied);
-      $("#miniStake").value = $("#calcStake").value;
-      $("#miniOdd").value = $("#calcOdd").value;
-      updateMiniCalc();
       toast("Odds calculadas.");
     }
 
     $("#calcOddsBtn").addEventListener("click", calcOdds);
-
-    function updateMiniCalc() {
-      const stake = parseMoney($("#miniStake").value);
-      const odd = parseOdd($("#miniOdd").value);
-      $("#miniReturn").textContent = brl(stake * odd);
-      $("#miniProfit").textContent = brl(stake * odd - stake);
-    }
-
-    $("#miniStake").addEventListener("input", updateMiniCalc);
-    $("#miniOdd").addEventListener("input", updateMiniCalc);
 
     function predictMatch() {
       const a = $("#teamA").value.trim() || "Time A";
@@ -2777,6 +2517,17 @@ Flamengo ou Empate @1.36</textarea>
     window.addEventListener("resize", () => {
       if (window.innerWidth > 1020) closeSidebar();
     });
+
+    // inicialização: garantir input visível e classe no chat-card
+    setTimeout(() => {
+      if ($("#view-chat").classList.contains("active")) {
+        $("#inputDock").classList.remove("hidden-input");
+        $(".chat-card").classList.add("has-fixed-input");
+      } else {
+        $("#inputDock").classList.add("hidden-input");
+        $(".chat-card").classList.remove("has-fixed-input");
+      }
+    }, 10);
   </script>
 </body>
 </html>
