@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EdCode — Testador de HTML</title>
+    <style>
+        :root {
+            --bg: #0f0f1a;
+            --surface: #1a1a2e;
+            --surface-light: #222240;
+            --header-bg: #141428;
+            --text: #e0e0e0;
+            --text-secondary: #a0a0b8;
+            --accent: #7c3aed;
+            --accent-hover: #6d28d9;
+            --accent-glow: rgba(124, 58, 237, 0.4);
+            --danger: #ef4444;
+            --border: #2a2a45;
+            --phone-frame: #1c1c1e;
+            --phone-screen-bg: #f5f5f7;
+            --sidebar-width: 340px;
+            --header-height: 56px;
+            --transition-speed: 0.3s;
+            --radius-sm: 8px;
+            --radius-md: 16px;
+            --radius-lg: 40px;
+            --shadow-lg: 0 25px 60px rgba(0, 0, 0, 0.5);
+            --shadow-phone: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 0 2px #2a2a35;
+            --font-mono: 'SF Mono', 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
+            --font-sans: 'Segoe UI', 'Inter', 'SF Pro Display', system-ui, -apple-system, sans-serif;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            height: 100%;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg);
+            color: var(--text);
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3a3a55;
+            border-radius: 3px;
+            transition: background 0.2s;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555577;
+        }
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #3a3a55 transparent;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 200;
+            height: var(--header-height);
+            background: var(--header-bg);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            gap: 14px;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .header__menu-btn {
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 26px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-speed) ease;
+            flex-shrink: 0;
+            position: relative;
+        }
+        .header__menu-btn:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: #fff;
+        }
+        .header__menu-btn:active {
+            background: rgba(255, 255, 255, 0.12);
+            transform: scale(0.93);
+        }
+        .header__menu-btn.active .hamburger-line:nth-child(1) {
+            transform: translateY(4px) rotate(45deg);
+        }
+        .header__menu-btn.active .hamburger-line:nth-child(2) {
+            opacity: 0;
+        }
+        .header__menu-btn.active .hamburger-line:nth-child(3) {
+            transform: translateY(-4px) rotate(-45deg);
+        }
+        .hamburger-icon {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            pointer-events: none;
+        }
+        .hamburger-line {
+            width: 20px;
+            height: 2px;
+            background: currentColor;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+            transform-origin: center;
+        }
+
+        .header__logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            font-size: 1.25rem;
+            letter-spacing: -0.3px;
+            color: #fff;
+        }
+        .header__logo-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            background: var(--accent);
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: 0;
+            box-shadow: 0 4px 15px var(--accent-glow);
+        }
+        .header__badge {
+            font-size: 0.65rem;
+            background: var(--accent);
+            color: #fff;
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-weight: 600;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            opacity: 0.9;
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            width: 100%;
+            height: calc(100% - var(--header-height));
+            background: rgba(0, 0, 0, 0.55);
+            z-index: 150;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity var(--transition-speed) ease;
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+        }
+        .sidebar-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            width: var(--sidebar-width);
+            max-width: 88vw;
+            height: calc(100% - var(--header-height));
+            background: var(--surface);
+            z-index: 160;
+            transform: translateX(-105%);
+            transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border);
+            box-shadow: 8px 0 40px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+        .sidebar.active {
+            transform: translateX(0);
+        }
+
+        .sidebar__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px 12px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .sidebar__title {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sidebar__title-icon {
+            font-size: 1.2rem;
+        }
+        .sidebar__close-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 22px;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .sidebar__close-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+        }
+        .sidebar__close-btn:active {
+            transform: scale(0.9);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .sidebar__body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 16px 20px;
+            gap: 12px;
+            overflow: hidden;
+        }
+        .sidebar__label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+        .sidebar__textarea {
+            flex: 1;
+            width: 100%;
+            background: var(--bg);
+            color: #d4d4e0;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            line-height: 1.6;
+            resize: none;
+            outline: none;
+            transition: all 0.25s ease;
+            min-height: 200px;
+        }
+        .sidebar__textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1);
+            background: #0c0c18;
+        }
+        .sidebar__textarea::placeholder {
+            color: #555570;
+            font-family: var(--font-sans);
+            font-size: 0.82rem;
+        }
+        .sidebar__actions {
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 11px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.25s ease;
+            font-family: var(--font-sans);
+            letter-spacing: 0.2px;
+            white-space: nowrap;
+        }
+        .btn:active {
+            transform: scale(0.95);
+        }
+        .btn--primary {
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 0 6px 20px var(--accent-glow);
+        }
+        .btn--primary:hover {
+            background: var(--accent-hover);
+            box-shadow: 0 8px 28px rgba(124, 58, 237, 0.55);
+            transform: translateY(-1px);
+        }
+        .btn--outline {
+            background: transparent;
+            color: var(--text);
+            border: 1.5px solid var(--border);
+        }
+        .btn--outline:hover {
+            border-color: #fff;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.03);
+        }
+        .btn--sm {
+            padding: 8px 14px;
+            font-size: 0.8rem;
+            border-radius: 20px;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            padding-top: calc(var(--header-height) + 20px);
+            overflow-y: auto;
+            overflow-x: hidden;
+            gap: 24px;
+            transition: filter 0.35s ease;
+        }
+        .main-content.sidebar-open {
+            filter: brightness(0.7);
+        }
+
+        .phone-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .phone-frame {
+            position: relative;
+            width: 380px;
+            max-width: 88vw;
+            aspect-ratio: 0.475;
+            max-height: 78vh;
+            background: var(--phone-frame);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-phone);
+            padding: 12px;
+            display: flex;
+            align-items: stretch;
+            justify-content: stretch;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            z-index: 1;
+        }
+        .phone-frame:hover {
+            box-shadow: 0 25px 65px rgba(0, 0, 0, 0.7), 0 0 0 2.5px #3d3d55;
+        }
+
+        .phone-frame::before {
+            content: '';
+            position: absolute;
+            top: 14px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 5px;
+            background: #2a2a30;
+            border-radius: 10px;
+            z-index: 3;
+            pointer-events: none;
+        }
+        .phone-frame::after {
+            content: '';
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%) translateY(18px);
+            width: 10px;
+            height: 10px;
+            background: #1a1a20;
+            border-radius: 50%;
+            z-index: 3;
+            pointer-events: none;
+            box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.6);
+        }
+
+        .phone-screen {
+            flex: 1;
+            background: var(--phone-screen-bg);
+            border-radius: 28px;
+            overflow: hidden;
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.15);
+        }
+
+        .phone-status-bar {
+            height: 28px;
+            background: #f0f0f5;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 18px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            flex-shrink: 0;
+            border-bottom: 1px solid #e0e0e5;
+            letter-spacing: 0.3px;
+        }
+        .phone-status-bar__time {
+            font-weight: 700;
+        }
+        .phone-status-bar__icons {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+        }
+        .phone-status-bar__battery {
+            width: 22px;
+            height: 11px;
+            border: 1.5px solid #1a1a1a;
+            border-radius: 3px;
+            position: relative;
+            padding: 1.5px;
+            display: flex;
+            align-items: center;
+        }
+        .phone-status-bar__battery-fill {
+            height: 100%;
+            width: 75%;
+            background: #1a1a1a;
+            border-radius: 1px;
+        }
+        .phone-status-bar__battery::after {
+            content: '';
+            position: absolute;
+            right: -3px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 2px;
+            height: 5px;
+            background: #1a1a1a;
+            border-radius: 0 2px 2px 0;
+        }
+
+        .phone-iframe-wrapper {
+            flex: 1;
+            position: relative;
+            background: #fff;
+        }
+        .phone-iframe-wrapper iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+            background: #fff;
+        }
+
+        .phone-nav-bar {
+            height: 26px;
+            background: #f0f0f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            border-top: 1px solid #e0e0e5;
+        }
+        .phone-nav-pill {
+            width: 40px;
+            height: 5px;
+            background: #999;
+            border-radius: 10px;
+        }
+
+        .loading-overlay {
+            position: absolute;
+            inset: 12px;
+            border-radius: 28px;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            backdrop-filter: blur(1px);
+            -webkit-backdrop-filter: blur(1px);
+        }
+        .loading-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .spinner {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 3.5px solid rgba(255, 255, 255, 0.2);
+            border-top-color: #fff;
+            animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .execute-bar {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-shrink: 0;
+        }
+        .btn--execute {
+            padding: 14px 36px;
+            font-size: 1rem;
+            border-radius: 30px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 8px 30px var(--accent-glow);
+            transition: all 0.3s ease;
+            font-family: var(--font-sans);
+        }
+        .btn--execute:hover {
+            background: var(--accent-hover);
+            box-shadow: 0 12px 40px rgba(124, 58, 237, 0.6);
+            transform: translateY(-2px);
+        }
+        .btn--execute:active {
+            transform: scale(0.94);
+            box-shadow: 0 4px 15px var(--accent-glow);
+            transition: all 0.1s ease;
+        }
+        .btn--execute .play-icon {
+            font-size: 1.4rem;
+            transition: transform 0.2s ease;
+        }
+        .btn--execute:active .play-icon {
+            transform: scale(1.3);
+        }
+        .btn--execute-secondary {
+            background: transparent;
+            border: 1.5px solid var(--border);
+            color: var(--text);
+            padding: 12px 22px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn--execute-secondary:hover {
+            border-color: #fff;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.03);
+        }
+        .btn--execute-secondary:active {
+            transform: scale(0.94);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(120px);
+            background: #2d2d50;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            z-index: 300;
+            pointer-events: none;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border);
+            letter-spacing: 0.3px;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        .toast.success {
+            border-color: #22c55e;
+            background: #1a3a2a;
+            color: #bbf7d0;
+        }
+
+        @media (max-width: 600px) {
+            .phone-frame {
+                max-width: 94vw;
+                max-height: 70vh;
+                border-radius: 32px;
+                padding: 8px;
+            }
+            .phone-screen {
+                border-radius: 22px;
+            }
+            .phone-status-bar {
+                height: 24px;
+                padding: 0 12px;
+                font-size: 0.65rem;
+            }
+            .phone-nav-bar {
+                height: 22px;
+            }
+            .loading-overlay {
+                inset: 8px;
+                border-radius: 22px;
+            }
+            .btn--execute {
+                padding: 12px 28px;
+                font-size: 0.9rem;
+            }
+            .sidebar {
+                max-width: 92vw;
+            }
+            .header__logo {
+                font-size: 1.1rem;
+            }
+            .header__badge {
+                display: none;
+            }
+        }
+        @media (max-width: 380px) {
+            .phone-frame {
+                max-width: 96vw;
+                max-height: 62vh;
+                border-radius: 26px;
+                padding: 6px;
+            }
+            .phone-screen {
+                border-radius: 18px;
+            }
+            .loading-overlay {
+                inset: 6px;
+                border-radius: 18px;
+            }
+            .phone-status-bar {
+                height: 20px;
+                padding: 0 10px;
+                font-size: 0.6rem;
+            }
+            .phone-nav-bar {
+                height: 18px;
+            }
+            .phone-nav-pill {
+                width: 30px;
+                height: 4px;
+            }
+            .execute-bar {
+                gap: 8px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .btn--execute {
+                padding: 10px 22px;
+                font-size: 0.82rem;
+            }
+            .btn--execute-secondary {
+                padding: 8px 16px;
+                font-size: 0.75rem;
+            }
+        }
+        @media (min-height: 900px) {
+            .phone-frame {
+                max-height: 82vh;
+            }
+        }
+        @media (max-height: 650px) {
+            .phone-frame {
+                max-height: 60vh;
+                border-radius: 28px;
+                padding: 8px;
+            }
+            .phone-screen {
+                border-radius: 20px;
+            }
+            .main-content {
+                padding-top: calc(var(--header-height) + 8px);
+                gap: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <button class="header__menu-btn" id="menuToggle" aria-label="Abrir menu lateral" title="Menu (Ctrl+B)">
+            <span class="hamburger-icon">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </span>
+        </button>
+        <span class="header__logo">
+            <span class="header__logo-icon">&lt;/&gt;</span>
+            EdCode
+        </span>
+        <span class="header__badge">Beta</span>
+    </header>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar__header">
+            <span class="sidebar__title">
+                <span class="sidebar__title-icon">📝</span>
+                HTML — Cole seu código aqui
+            </span>
+            <button class="sidebar__close-btn" id="sidebarCloseBtn" aria-label="Fechar menu" title="Fechar (Esc)">
+                ✕
+            </button>
+        </div>
+        <div class="sidebar__body">
+            <span class="sidebar__label">✏️ Editor de Código</span>
+            <textarea
+            class="sidebar__textarea"
+            id="codeEditor"
+            placeholder="Cole ou digite seu código HTML aqui...&#10;&#10;Exemplo:&#10;&lt;h1&gt;Olá Mundo!&lt;/h1&gt;&#10;&lt;p&gt;Seu código será renderizado no celular virtual.&lt;/p&gt;"
+            spellcheck="false"
+        ></textarea>
+        <div class="sidebar__actions">
+            <button class="btn btn--primary btn--sm" id="sidebarRunBtn" title="Executar código (Ctrl+Enter)">
+                ▶ Executar
+            </button>
+            <button class="btn btn--outline btn--sm" id="clearCodeBtn" title="Limpar editor">
+                🗑 Limpar
+            </button>
+        </div>
+    </div>
+</aside>
+
+<main class="main-content" id="mainContent">
+    <div class="phone-container">
+        <div class="phone-frame" id="phoneFrame">
+            <div class="phone-screen">
+                <div class="phone-status-bar">
+                    <span class="phone-status-bar__time" id="statusTime">09:41</span>
+                    <span class="phone-status-bar__icons">
+                        📶 📡
+                        <span class="phone-status-bar__battery">
+                            <span class="phone-status-bar__battery-fill"></span>
+                        </span>
+                    </span>
+                </div>
+                <div class="phone-iframe-wrapper">
+                    <iframe
+                    id="previewFrame"
+                    title="Preview do HTML"
+                    sandbox="allow-scripts allow-forms allow-modals allow-popups"
+                    loading="lazy"
+                ></iframe>
+            </div>
+            <div class="phone-nav-bar">
+                <span class="phone-nav-pill"></span>
+            </div>
+        </div>
+    </div>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+    </div>
+</div>
+
+<div class="execute-bar">
+    <button class="btn--execute" id="mainExecuteBtn" title="Executar código (Ctrl+Enter)">
+        <span class="play-icon">▶</span> Executar Código
+    </button>
+    <button class="btn--execute-secondary" id="resetExampleBtn" title="Baixar código HTML">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 1v10M4 8l4 4 4-4M2 14h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Baixar arquivo
+    </button>
+</div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+    (function() {
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
+        const mainContent = document.getElementById('mainContent');
+        const codeEditor = document.getElementById('codeEditor');
+        const previewFrame = document.getElementById('previewFrame');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const mainExecuteBtn = document.getElementById('mainExecuteBtn');
+        const sidebarRunBtn = document.getElementById('sidebarRunBtn');
+        const clearCodeBtn = document.getElementById('clearCodeBtn');
+        const resetExampleBtn = document.getElementById('resetExampleBtn');
+        const toast = document.getElementById('toast');
+        const statusTime = document.getElementById('statusTime');
+        const phoneFrame = document.getElementById('phoneFrame');
+
+        const exemploHTML = `<!DOCTYPE html>
+        <html lang="pt-BR">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body {
+                    font-family: 'Segoe UI', system-ui, sans-serif;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    min-height: 100vh;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 20px;
+                }
+                .card {
+                    background: #ffffff;
+                    border-radius: 20px;
+                    padding: 36px 28px;
+                    max-width: 320px;
+                    width: 100%;
+                    text-align: center;
+                    box-shadow: 0 25px 60px rgba(0,0,0,0.35);
+                    animation: fadeInUp 0.6s ease;
+                }
+                @keyframes fadeInUp {
+                    from { opacity: 0; transform: translateY(30px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .card h1 {
+                    font-size: 1.6rem;
+                    color: #1a1a2e;
+                    margin-bottom: 8px;
+                    letter-spacing: -0.3px;
+                }
+                .card p {
+                    color: #666;
+                    font-size: 0.95rem;
+                    line-height: 1.5;
+                    margin-bottom: 20px;
+                }
+                .card button {
+                    background: #7c3aed;
+                    color: #fff;
+                    border: none;
+                    padding: 13px 28px;
+                    border-radius: 30px;
+                    font-size: 0.95rem;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    box-shadow: 0 6px 20px rgba(124,58,237,0.4);
+                    letter-spacing: 0.2px;
+                }
+                .card button:hover {
+                    background: #6d28d9;
+                    transform: translateY(-2px);
+                    box-shadow: 0 10px 28px rgba(124,58,237,0.55);
+                }
+                .card button:active {
+                    transform: scale(0.95);
+                }
+                .emoji {
+                    font-size: 3rem;
+                    display: block;
+                    margin-bottom: 12px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="card">
+                <span class="emoji">✨</span>
+                <h1>Olá! Este é o EdCode</h1>
+                <p>Cole seu HTML na barra lateral, clique em <strong>Executar</strong> e veja a mágica acontecer aqui!</p>
+                <button onclick="alert('🎉 JavaScript funcionando!')">Testar JS</button>
+            </div>
+        </body>
+        </html>`;
+
+        let sidebarOpen = false;
+        let toastTimer = null;
+
+        function updateStatusTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            statusTime.textContent = `${hours}:${minutes}`;
+        }
+        updateStatusTime();
+        setInterval(updateStatusTime, 30000);
+
+        function openSidebar() {
+            sidebar.classList.add('active');
+            sidebarOverlay.classList.add('active');
+            menuToggle.classList.add('active');
+            mainContent.classList.add('sidebar-open');
+            sidebarOpen = true;
+            setTimeout(() => codeEditor.focus(), 350);
+        }
+
+        function closeSidebar() {
+            sidebar.classList.remove('active');
+            sidebarOverlay.classList.remove('active');
+            menuToggle.classList.remove('active');
+            mainContent.classList.remove('sidebar-open');
+            sidebarOpen = false;
+        }
+
+        function toggleSidebar() {
+            if (sidebarOpen) {
+                closeSidebar();
+            } else {
+                openSidebar();
+            }
+        }
+
+        menuToggle.addEventListener('click', toggleSidebar);
+        sidebarCloseBtn.addEventListener('click', closeSidebar);
+        sidebarOverlay.addEventListener('click', closeSidebar);
+
+        function showToast(message, type = '') {
+            if (toastTimer) clearTimeout(toastTimer);
+            toast.classList.remove('show', 'success');
+            if (type) toast.classList.add(type);
+            toast.textContent = message;
+            void toast.offsetWidth;
+            toast.classList.add('show');
+            toastTimer = setTimeout(() => {
+                toast.classList.remove('show', 'success');
+            }, 2500);
+        }
+
+        function renderHTML(htmlCode) {
+            loadingOverlay.classList.add('active');
+            previewFrame.srcdoc = htmlCode;
+        }
+
+        previewFrame.addEventListener('load', () => {
+            setTimeout(() => {
+                loadingOverlay.classList.remove('active');
+            }, 150);
+        });
+
+        function hideLoadingAfterTimeout() {
+            setTimeout(() => {
+                if (loadingOverlay.classList.contains('active')) {
+                    loadingOverlay.classList.remove('active');
+                }
+            }, 1500);
+        }
+
+        function executeCode() {
+            const code = codeEditor.value.trim();
+            if (!code) {
+                showToast('O editor está vazio. Cole algum código HTML primeiro.');
+                previewFrame.srcdoc =
+                    '<html><body style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;color:#aaa;background:#fff;"><p>Cole seu código e clique em <strong>Executar</strong></p></body></html>';
+                loadingOverlay.classList.remove('active');
+                return;
+            }
+            renderHTML(code);
+            hideLoadingAfterTimeout();
+            showToast('Código executado com sucesso!', 'success');
+            if (window.innerWidth < 600 && sidebarOpen) {
+                closeSidebar();
+            }
+        }
+
+        function clearCode() {
+            codeEditor.value = '';
+            previewFrame.srcdoc =
+                '<html><body style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;color:#ccc;background:#fff;text-align:center;padding:20px;"><div><p style="font-size:2rem;"></p><p>Editor limpo.<br>Cole novo código e execute.</p></div></body></html>';
+            loadingOverlay.classList.remove('active');
+            codeEditor.focus();
+            showToast('Editor limpo!');
+        }
+
+        function loadExample() {
+            codeEditor.value = exemploHTML;
+            renderHTML(exemploHTML);
+            hideLoadingAfterTimeout();
+            showToast('Exemplo carregado!', 'success');
+            if (!sidebarOpen) {
+                openSidebar();
+            }
+        }
+
+        function downloadHTML() {
+            const code = codeEditor.value;
+            if (!code.trim()) {
+                showToast('Editor vazio. Nada para baixar.');
+                return;
+            }
+            const blob = new Blob([code], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'index.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('index.html baixado!', 'success');
+        }
+
+        function initialize() {
+            codeEditor.value = exemploHTML;
+            previewFrame.srcdoc = exemploHTML;
+            hideLoadingAfterTimeout();
+        }
+
+        mainExecuteBtn.addEventListener('click', executeCode);
+        sidebarRunBtn.addEventListener('click', () => {
+            executeCode();
+            if (sidebarOpen && window.innerWidth < 768) {
+                closeSidebar();
+            }
+        });
+        clearCodeBtn.addEventListener('click', clearCode);
+        resetExampleBtn.addEventListener('click', downloadHTML);
+
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                executeCode();
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
+                e.preventDefault();
+                toggleSidebar();
+            }
+            if (e.key === 'Escape' && sidebarOpen) {
+                e.preventDefault();
+                closeSidebar();
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key === 'l') {
+                e.preventDefault();
+                clearCode();
+            }
+        });
+
+        let touchStartX = 0;
+        sidebar.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+        }, { passive: true });
+        sidebar.addEventListener('touchmove', (e) => {
+            const deltaX = e.touches[0].clientX - touchStartX;
+            if (deltaX < -60 && sidebarOpen) {
+                closeSidebar();
+            }
+        }, { passive: true });
+
+        let resizeDebounce;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeDebounce);
+            resizeDebounce = setTimeout(() => {
+                if (window.innerWidth > 900 && sidebarOpen) {
+                }
+            }, 200);
+        });
+
+        initialize();
+
+        console.log('%c EdCode %cready!',
+            'font-size:1.2em;font-weight:bold;color:#7c3aed;',
+            'color:#a0a0b8;');
+        console.log('%c Cole HTML na sidebar e veja no celular virtual.',
+            'color:#ccc;');
+        console.log('%c Atalhos: Ctrl+Enter = Executar | Ctrl+B = Menu | Ctrl+L = Limpar | Esc = Fechar',
+            'color:#888;font-size:0.85em;');
+    })();
+</script>
+</body>
+</html>
